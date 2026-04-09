@@ -1,144 +1,171 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Ali's Japan Adventure</title>
+  <title>Ali's Japan Adventure Deluxe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
     body {
       font-family: Arial;
-      background: linear-gradient(to right, #a1c4fd, #c2e9fb);
       text-align: center;
-      padding: 20px;
+      margin: 0;
+      overflow: hidden;
+      background: linear-gradient(270deg, #74ebd5, #acb6e5, #ff9a9e);
+      background-size: 600% 600%;
+      animation: gradientBG 10s ease infinite;
     }
+
+    @keyframes gradientBG {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+
     .box {
-      background: white;
-      padding: 20px;
+      background: rgba(255,255,255,0.95);
+      padding: 15px;
       border-radius: 15px;
-      width: 450px;
-      margin: auto;
-      box-shadow: 0 0 15px gray;
+      width: 90%;
+      max-width: 420px;
+      margin: 60px auto;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      position: relative;
+      z-index: 2;
     }
+
     button {
       padding: 10px;
       margin: 5px;
+      border-radius: 10px;
+      border: none;
+      background-color: #ff7675;
+      color: white;
       cursor: pointer;
-      border-radius: 8px;
+      width: 90%;
     }
+
     input {
-      padding: 8px;
-      width: 80%;
+      padding: 10px;
+      width: 90%;
+      margin-top: 10px;
+    }
+
+    /* Floating emojis */
+    .emoji {
+      position: absolute;
+      font-size: 24px;
+      animation: floatUp 8s linear infinite;
+      opacity: 0.7;
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(100vh); }
+      100% { transform: translateY(-10vh); }
     }
   </style>
 </head>
+
 <body>
 
-<h1>✈️ Ali’s Japan Adventure</h1>
+<h1 style="color:white;">✈️ Ali’s Japan Adventure 🇯🇵</h1>
 
 <div class="box">
-  <p id="story">Click Start to begin!</p>
 
-  <div id="options"></div>
+  <!-- STORY -->
+  <div id="storySection">
+    <h3>📖 Read the Story</h3>
+    <p>
+      Ali is very excited. He is going to Japan next week with his family. 
+      He is going to visit Tokyo Tower and Mount Fuji. 
+      He is going to try sushi and ramen. 
+      He is going to take many pictures and buy souvenirs. 
+      He is going to feel very happy.
+    </p>
+    <button onclick="startGame()">Start Game</button>
+  </div>
 
-  <input type="text" id="writing" placeholder="Type your sentence here..."><br><br>
+  <!-- GAME -->
+  <div id="gameSection" style="display:none;">
+    <p id="question"></p>
 
-  <button onclick="checkAnswer()">Submit</button>
-  <button onclick="nextQuestion()">Next</button>
+    <input type="text" id="writing" placeholder="Use 'be going to'">
 
-  <p id="feedback"></p>
-  <p id="score">Score: 0</p>
-  <p id="timer">Time: 30</p>
+    <button onclick="checkAnswer()">Submit</button>
+    <button onclick="nextQuestion()">Next</button>
+
+    <p id="feedback"></p>
+    <p id="score">Score: 0</p>
+  </div>
+
 </div>
+
+<!-- 🎵 Background Music -->
+<audio id="bgMusic" autoplay loop>
+  <source src="https://www.bensound.com/bensound-music/bensound-sunny.mp3" type="audio/mpeg">
+</audio>
 
 <script>
 let questions = [
-  {
-    text: "Where is Ali going?",
-    options: ["Korea", "Japan", "Thailand"],
-    answer: "Japan",
-    writing: "He is going to Japan"
-  },
-  {
-    text: "When is he going?",
-    options: ["Yesterday", "Next week", "Last year"],
-    answer: "Next week",
-    writing: "He is going next week"
-  },
-  {
-    text: "What is he going to do?",
-    options: ["Sleep all day", "Visit places", "Stay home"],
-    answer: "Visit places",
-    writing: "He is going to visit famous places"
-  },
-  {
-    text: "What food is he going to try?",
-    options: ["Pizza", "Sushi", "Burger"],
-    answer: "Sushi",
-    writing: "He is going to try sushi"
-  }
+  {text: "Where is Ali going?", answer: "japan"},
+  {text: "When is he going?", answer: "next week"},
+  {text: "What is he going to visit?", answer: "tokyo"},
+  {text: "What food is he going to try?", answer: "sushi"},
+  {text: "How is he going to feel?", answer: "happy"}
 ];
 
 let index = 0;
 let score = 0;
-let time = 30;
-let timer;
 
-function startTimer() {
-  clearInterval(timer);
-  time = 30;
-  document.getElementById("timer").innerText = "Time: " + time;
-
-  timer = setInterval(() => {
-    time--;
-    document.getElementById("timer").innerText = "Time: " + time;
-
-    if (time == 0) {
-      clearInterval(timer);
-      document.getElementById("feedback").innerText = "⏰ Time's up!";
-    }
-  }, 1000);
+function startGame() {
+  document.getElementById("storySection").style.display = "none";
+  document.getElementById("gameSection").style.display = "block";
+  nextQuestion();
 }
 
 function nextQuestion() {
   if (index >= questions.length) {
-    document.getElementById("story").innerText = "🎉 Game Over!";
-    document.getElementById("options").innerHTML = "";
+    document.getElementById("question").innerText = "🎉 Game Over!";
     return;
   }
 
-  let q = questions[index];
-  document.getElementById("story").innerText = q.text;
-
-  let optionsHTML = "";
-  q.options.forEach(opt => {
-    optionsHTML += `<button onclick="selectOption('${opt}')">${opt}</button>`;
-  });
-
-  document.getElementById("options").innerHTML = optionsHTML;
+  document.getElementById("question").innerText = questions[index].text;
   document.getElementById("writing").value = "";
   document.getElementById("feedback").innerText = "";
-
-  startTimer();
   index++;
 }
 
-let selected = "";
-
-function selectOption(opt) {
-  selected = opt;
-}
-
 function checkAnswer() {
-  let q = questions[index - 1];
-  let writing = document.getElementById("writing").value.toLowerCase();
+  let ans = document.getElementById("writing").value.toLowerCase();
+  let correct = questions[index - 1].answer;
 
-  if (selected === q.answer && writing.includes("going")) {
+  if (ans.includes("going to") && ans.includes(correct)) {
     score++;
-    document.getElementById("feedback").innerText = "✅ Correct!";
+    document.getElementById("feedback").innerText = "✅ Excellent!";
   } else {
-    document.getElementById("feedback").innerText = "❌ Try again!";
+    document.getElementById("feedback").innerText = "❌ Use 'going to'!";
   }
 
   document.getElementById("score").innerText = "Score: " + score;
 }
+
+/* 🎨 Floating Emojis Generator */
+function createEmoji() {
+  let emojis = ["✈️","🌸","🇯🇵","🗾","🍣"];
+  let emoji = document.createElement("div");
+  emoji.className = "emoji";
+  emoji.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+
+  emoji.style.left = Math.random() * 100 + "vw";
+  emoji.style.fontSize = (20 + Math.random() * 20) + "px";
+
+  document.body.appendChild(emoji);
+
+  setTimeout(() => {
+    emoji.remove();
+  }, 8000);
+}
+
+setInterval(createEmoji, 1000);
 </script>
 
 </body>
